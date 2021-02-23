@@ -96,7 +96,7 @@ func NewFaunaClient(email, password string) *Client {
 }
 
 // Login permits to get the secret used to exchange with Fauna.
-func (f *Client) Login() error {
+func (f *Client) Login(url string) error {
 	data, err := json.Marshal(map[string]string{
 		"email":    f.Email,
 		"password": f.Password,
@@ -105,7 +105,7 @@ func (f *Client) Login() error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", DashboardAuthAPI, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}
@@ -135,8 +135,8 @@ func (f *Client) Login() error {
 }
 
 // GetBillingUsage returns the billing usage for the chosen number of days.
-func (f *Client) GetBillingUsage(days int) (Billing, error) {
-	req, err := http.NewRequest("GET", DashboardBillingAPI+"?mode=preview&days="+strconv.FormatInt(int64(days), 10), nil)
+func (f *Client) GetBillingUsage(url string, days int) (Billing, error) {
+	req, err := http.NewRequest("GET", url+"?mode=preview&days="+strconv.FormatInt(int64(days), 10), nil)
 	if err != nil {
 		return Billing{}, err
 	}
@@ -165,8 +165,8 @@ func (f *Client) GetBillingUsage(days int) (Billing, error) {
 }
 
 // GetUsage returns the metrics of all the collections for the chosen number of days.
-func (f *Client) GetUsage(days int) (Usage, error) {
-	req, err := http.NewRequest("GET", DashboardUsageAPI+"?days="+strconv.FormatInt(int64(days), 10), nil)
+func (f *Client) GetUsage(url string, days int) (Usage, error) {
+	req, err := http.NewRequest("GET", url+"?days="+strconv.FormatInt(int64(days), 10), nil)
 	if err != nil {
 		return Usage{}, err
 	}

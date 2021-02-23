@@ -196,12 +196,12 @@ func pushUsageMetrics(ch chan<- prometheus.Metric, u fauna.UsageType, key string
 // Collect fetches the metrics and delivers them as Prometheus metrics.
 // It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	if err := e.client.Login(); err != nil {
+	if err := e.client.Login(fauna.DashboardAuthAPI); err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not login: %s", err)
 		return
 	}
 
-	billing, err := e.client.GetBillingUsage(e.days)
+	billing, err := e.client.GetBillingUsage(fauna.DashboardBillingAPI, e.days)
 	if err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not get billing usage: %s", err)
 		return
@@ -209,7 +209,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	pushBillingMetrics(ch, billing)
 
-	usage, err := e.client.GetUsage(e.days)
+	usage, err := e.client.GetUsage(fauna.DashboardUsageAPI, e.days)
 	if err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not get usage: %s", err)
 		return
