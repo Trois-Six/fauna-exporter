@@ -1,0 +1,56 @@
+[run]
+  deadline = "2m"
+  skip-files = []
+
+[linters-settings]
+
+  [linters-settings.govet]
+    check-shadowing = true
+
+  [linters-settings.gocyclo]
+    min-complexity = 12.0
+
+  [linters-settings.maligned]
+    suggest-new = true
+
+  [linters-settings.goconst]
+    min-len = 3.0
+    min-occurrences = 3.0
+
+  [linters-settings.misspell]
+    locale = "US"
+
+  [linters-settings.funlen]
+    lines = 75 # Default : 60
+    statements = 40 # Default : 40
+
+[linters]
+  enable-all = true
+  disable = [
+    "maligned",
+    "lll",
+    "dupl",
+    "wsl",
+    "prealloc",
+    "gomnd",
+    "testpackage",
+    "nestif", # Too many false-positive.
+    "goerr113",
+    "nlreturn",
+    "noctx",
+    "wrapcheck",
+    "exhaustivestruct",
+    "tparallel",
+    "paralleltest",
+  ]
+
+[issues]
+  exclude-use-default = false
+  max-per-linter = 0
+  max-same-issues = 0
+  exclude = [
+    "ST1000: at least one file in a package should have a package comment"
+  ]
+  [[issues.exclude-rules]]
+    path = "exporter.go"
+    text = "(billing|usage)[^ ]* is a global variable"
