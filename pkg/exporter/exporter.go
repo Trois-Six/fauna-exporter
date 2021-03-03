@@ -1,3 +1,4 @@
+// Package exporter contains all prometheus related stuff.
 package exporter
 
 import (
@@ -12,6 +13,7 @@ const (
 	transactionalWriteOpsCost   = 2.5 / 1000000
 	transactionalComputeOpsCost = 2.25 / 1000000
 	dataStorageCost             = 0.25 / 1024 / 1024 / 1024
+	centsToDollars              = 100
 )
 
 var (
@@ -163,21 +165,36 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func pushBillingMetrics(ch chan<- prometheus.Metric, billing fauna.Billing) {
-	ch <- prometheus.MustNewConstMetric(billingStartPeriod, prometheus.GaugeValue, 1, billing.StartPeriod)
-	ch <- prometheus.MustNewConstMetric(billingEndPeriod, prometheus.GaugeValue, 1, billing.EndPeriod)
-	ch <- prometheus.MustNewConstMetric(billingTotalAmount, prometheus.GaugeValue, float64(billing.TotalAmount)/100, "dollars")
-	ch <- prometheus.MustNewConstMetric(billingMetricAmountByteReadOps, prometheus.GaugeValue, float64(billing.MetricAmount.ByteReadOps), "byte_read_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricAmountByteWriteOps, prometheus.GaugeValue, float64(billing.MetricAmount.ByteWriteOps), "byte_write_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricAmountComputeOps, prometheus.GaugeValue, float64(billing.MetricAmount.ComputeOps), "compute_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricAmountStorage, prometheus.GaugeValue, float64(billing.MetricAmount.Storage), "storage")
-	ch <- prometheus.MustNewConstMetric(billingMetricUsageByteReadOps, prometheus.GaugeValue, float64(billing.MetricUsage.ByteReadOps), "byte_read_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricUsageByteWriteOps, prometheus.GaugeValue, float64(billing.MetricUsage.ByteWriteOps), "byte_write_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricUsageComputeOps, prometheus.GaugeValue, float64(billing.MetricUsage.ComputeOps), "compute_ops")
-	ch <- prometheus.MustNewConstMetric(billingMetricUsageStorage, prometheus.GaugeValue, float64(billing.MetricUsage.Storage), "storage")
-	ch <- prometheus.MustNewConstMetric(billingTROCost, prometheus.GaugeValue, float64(billing.MetricUsage.ByteReadOps)*transactionalReadOpsCost, "dollars")
-	ch <- prometheus.MustNewConstMetric(billingTWROCost, prometheus.GaugeValue, float64(billing.MetricUsage.ByteWriteOps)*transactionalWriteOpsCost, "dollars")
-	ch <- prometheus.MustNewConstMetric(billingTCOCost, prometheus.GaugeValue, float64(billing.MetricUsage.ComputeOps)*transactionalComputeOpsCost, "dollars")
-	ch <- prometheus.MustNewConstMetric(billingDataStorageCost, prometheus.GaugeValue, float64(billing.MetricUsage.Storage)*dataStorageCost, "dollars")
+	ch <- prometheus.MustNewConstMetric(billingStartPeriod,
+		prometheus.GaugeValue, 1, billing.StartPeriod)
+	ch <- prometheus.MustNewConstMetric(billingEndPeriod,
+		prometheus.GaugeValue, 1, billing.EndPeriod)
+	ch <- prometheus.MustNewConstMetric(billingTotalAmount,
+		prometheus.GaugeValue, float64(billing.TotalAmount)/centsToDollars, "dollars")
+	ch <- prometheus.MustNewConstMetric(billingMetricAmountByteReadOps,
+		prometheus.GaugeValue, float64(billing.MetricAmount.ByteReadOps), "byte_read_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricAmountByteWriteOps,
+		prometheus.GaugeValue, float64(billing.MetricAmount.ByteWriteOps), "byte_write_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricAmountComputeOps,
+		prometheus.GaugeValue, float64(billing.MetricAmount.ComputeOps), "compute_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricAmountStorage,
+		prometheus.GaugeValue, float64(billing.MetricAmount.Storage), "storage")
+	ch <- prometheus.MustNewConstMetric(billingMetricUsageByteReadOps,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ByteReadOps), "byte_read_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricUsageByteWriteOps,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ByteWriteOps), "byte_write_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricUsageComputeOps,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ComputeOps), "compute_ops")
+	ch <- prometheus.MustNewConstMetric(billingMetricUsageStorage,
+		prometheus.GaugeValue, float64(billing.MetricUsage.Storage), "storage")
+	ch <- prometheus.MustNewConstMetric(billingTROCost,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ByteReadOps)*transactionalReadOpsCost, "dollars")
+	ch <- prometheus.MustNewConstMetric(billingTWROCost,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ByteWriteOps)*transactionalWriteOpsCost, "dollars")
+	ch <- prometheus.MustNewConstMetric(billingTCOCost,
+		prometheus.GaugeValue, float64(billing.MetricUsage.ComputeOps)*transactionalComputeOpsCost, "dollars")
+	ch <- prometheus.MustNewConstMetric(billingDataStorageCost,
+		prometheus.GaugeValue, float64(billing.MetricUsage.Storage)*dataStorageCost, "dollars")
 }
 
 func pushUsageMetrics(ch chan<- prometheus.Metric, u fauna.UsageType, key string) {
@@ -198,12 +215,14 @@ func pushUsageMetrics(ch chan<- prometheus.Metric, u fauna.UsageType, key string
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	if err := e.client.Login(fauna.DashboardAuthAPI); err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not login: %s", err)
+
 		return
 	}
 
 	billing, err := e.client.GetBillingUsage(fauna.DashboardBillingAPI, e.days)
 	if err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not get billing usage: %s", err)
+
 		return
 	}
 
@@ -212,6 +231,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	usage, err := e.client.GetUsage(fauna.DashboardUsageAPI, e.days)
 	if err != nil {
 		log.Error().Str("exporter", "msg").Msgf("could not get usage: %s", err)
+
 		return
 	}
 

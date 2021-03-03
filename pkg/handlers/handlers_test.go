@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"io/ioutil"
@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Trois-Six/fauna-exporter/pkg/handlers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,7 +14,7 @@ import (
 func TestHandlers_Index(t *testing.T) {
 	rw := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	New("/metrics").Index(rw, req)
+	handlers.New("/metrics").Index(rw, req)
 	assert.Equal(t, http.StatusOK, rw.Code)
 
 	body, err := ioutil.ReadAll(rw.Body)
@@ -24,7 +25,7 @@ func TestHandlers_Index(t *testing.T) {
 func TestHandlers_OK(t *testing.T) {
 	rw := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	New("/metrics").OK(rw, req)
+	handlers.New("/metrics").OK(rw, req)
 	assert.Equal(t, http.StatusOK, rw.Code)
 
 	body, err := ioutil.ReadAll(rw.Body)

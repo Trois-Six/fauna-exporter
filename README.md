@@ -49,7 +49,7 @@ OPTIONS:
 ```
 
 ## Example of output
-```json
+```
 # HELP fauna_billing_data_storage_cost Billing information - Data Storage cost.
 # TYPE fauna_billing_data_storage_cost gauge
 fauna_billing_data_storage_cost{type="dollars"} 0.22077963314950466

@@ -1,4 +1,4 @@
-package fauna
+package fauna_test
 
 import (
 	"crypto/rand"
@@ -8,16 +8,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Trois-Six/fauna-exporter/pkg/fauna"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func randInt64() int64 {
 	n, _ := rand.Int(rand.Reader, big.NewInt(1000))
+
 	return n.Int64()
 }
 
-func mockDashBoardAuthAPI(data authentication, status int) *httptest.Server {
+func mockDashBoardAuthAPI(data fauna.Authentication, status int) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			rw.WriteHeader(status)
@@ -27,7 +29,7 @@ func mockDashBoardAuthAPI(data authentication, status int) *httptest.Server {
 		}))
 }
 
-func mockDashBoardBillingAPI(data Billing, status int) *httptest.Server {
+func mockDashBoardBillingAPI(data fauna.Billing, status int) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			rw.WriteHeader(status)
@@ -37,7 +39,7 @@ func mockDashBoardBillingAPI(data Billing, status int) *httptest.Server {
 		}))
 }
 
-func mockDashBoardUsageAPI(data Usage, status int) *httptest.Server {
+func mockDashBoardUsageAPI(data fauna.Usage, status int) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			rw.WriteHeader(status)
@@ -48,46 +50,46 @@ func mockDashBoardUsageAPI(data Usage, status int) *httptest.Server {
 }
 
 func TestFauna_Login(t *testing.T) {
-	dashboardAuthAPIMock := mockDashBoardAuthAPI(authentication{
+	dashboardAuthAPIMock := mockDashBoardAuthAPI(fauna.Authentication{
 		ID:        "1234",
 		SessionID: "1234",
 		Secret:    "secret",
-		User: user{
+		User: fauna.User{
 			Name:       "name",
 			Email:      "foo.bar@example.org",
 			ID:         "1234",
 			OTPEnabled: false,
 			Role:       "role",
 		},
-		Account: account{
+		Account: fauna.Account{
 			CompanyName:   "company",
 			LegacyAccount: false,
 		},
 	}, http.StatusOK)
 	defer dashboardAuthAPIMock.Close()
 
-	f := NewFaunaClient("foo.bar@example.org", "password")
+	f := fauna.NewFaunaClient("foo.bar@example.org", "password")
 	err := f.Login(dashboardAuthAPIMock.URL)
 	require.NoError(t, err)
 	assert.Equal(t, "secret", f.Secret)
 }
 
 func TestFauna_GetBillingUsage(t *testing.T) {
-	b := Billing{
+	b := fauna.Billing{
 		StartPeriod: "1970-01-01T00:00:00Z",
 		EndPeriod:   "1970-01-02T00:00:00Z",
-		LineItems: []BillingLineItem{{
+		LineItems: []fauna.BillingLineItem{{
 			Description: "Business plan",
 			Amount:      12500,
 		}},
 		TotalAmount: 12500,
-		MetricAmount: BillingType{
+		MetricAmount: fauna.BillingType{
 			ByteReadOps:  randInt64(),
 			ByteWriteOps: randInt64(),
 			ComputeOps:   randInt64(),
 			Storage:      randInt64(),
 		},
-		MetricUsage: BillingType{
+		MetricUsage: fauna.BillingType{
 			ByteReadOps:  randInt64(),
 			ByteWriteOps: randInt64(),
 			ComputeOps:   randInt64(),
@@ -95,9 +97,10 @@ func TestFauna_GetBillingUsage(t *testing.T) {
 		},
 	}
 	dashboardAuthAPIMock := mockDashBoardBillingAPI(b, http.StatusOK)
+
 	defer dashboardAuthAPIMock.Close()
 
-	f := NewFaunaClient("foo.bar@example.org", "password")
+	f := fauna.NewFaunaClient("foo.bar@example.org", "password")
 	err := f.Login(dashboardAuthAPIMock.URL)
 	require.NoError(t, err)
 
@@ -107,7 +110,7 @@ func TestFauna_GetBillingUsage(t *testing.T) {
 }
 
 func TestFauna_GetUsage(t *testing.T) {
-	u := Usage{
+	u := fauna.Usage{
 		"collectionA": {
 			ByteReadOps:  randInt64(),
 			ByteWriteOps: randInt64(),
@@ -126,9 +129,10 @@ func TestFauna_GetUsage(t *testing.T) {
 		},
 	}
 	dashboardAuthAPIMock := mockDashBoardUsageAPI(u, http.StatusOK)
+
 	defer dashboardAuthAPIMock.Close()
 
-	f := NewFaunaClient("foo.bar@example.org", "password")
+	f := fauna.NewFaunaClient("foo.bar@example.org", "password")
 	err := f.Login(dashboardAuthAPIMock.URL)
 	require.NoError(t, err)
 

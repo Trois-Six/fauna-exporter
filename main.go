@@ -8,6 +8,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	defaultFaunaMetricsDays = 7
+)
+
 func main() {
 	app := &cli.App{
 		Name:  "fauna-exporter CLI",
@@ -48,7 +52,7 @@ func exporterCommand() *cli.Command {
 				Name:    "fauna-days",
 				Usage:   "Number of days of the metrics.",
 				EnvVars: []string{"FAUNA_DAYS"},
-				Value:   7,
+				Value:   defaultFaunaMetricsDays,
 			},
 			&cli.StringFlag{
 				Name:    "metrics-path",

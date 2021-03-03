@@ -1,6 +1,8 @@
+// Package exporter contains the exporter cmd.
 package exporter
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -36,6 +38,7 @@ func Run(cliContext *cli.Context) error {
 			promhttp.HandlerOpts{},
 		),
 	))
+
 	handler := handlers.New(cliContext.String("metrics-path"))
 	mux.HandleFunc("/", handler.Index)
 	mux.HandleFunc("/-/healthy", handler.OK)
@@ -54,7 +57,7 @@ func setupEnvVars(context *cli.Context) error {
 
 	for name, flag := range vars {
 		if err := os.Setenv(name, context.String(flag)); err != nil {
-			return err
+			return fmt.Errorf("failed to set environment variable: %w", err)
 		}
 	}
 
