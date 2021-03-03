@@ -48,6 +48,32 @@ OPTIONS:
    --help, -h              show help (default: false)
 ```
 
+## Exported metrics
+
+| Metric                                       | Meaning                                                            | Labels                |
+| -------------------------------------------- | ------------------------------------------------------------------ | --------------------- |
+| fauna_billing_start_period                   | Start date of the interval of query                                | date                  |
+| fauna_billing_end_period                     | End date of the interval of query                                  | date                  |
+| fauna_billing_total_amount                   | Total cost during the interval                                     | type (dollars)        |
+| fauna_billing_metric_amount_byte_read_ops    |                                                                    | type (byte_read_ops)  |
+| fauna_billing_metric_amount_byte_write_ops   |                                                                    | type (byte_write_ops) |
+| fauna_billing_metric_amount_compute_ops      |                                                                    | type (compute_ops)    |
+| fauna_billing_metric_amount_storage          |                                                                    | type (storage)        |
+| fauna_billing_metric_usage_byte_read_ops     | Byte read operations during the interval                           | type (byte_read_ops)  |
+| fauna_billing_metric_usage_byte_write_ops    | Byte write operations during the interval                          | type (byte_write_ops) |
+| fauna_billing_metric_usage_compute_ops       | Compute operations during the interval                             | type (compute_ops)    |
+| fauna_billing_metric_usage_storage           | Storage (GB) during the interval                                   | type (storage)        |
+| fauna_billing_transactional_read_ops_cost    | [TRO](https://fauna.com/pricing) cost during the interval          | type (dollars)        |
+| fauna_billing_transactional_write_ops_cost   | [TWO](https://fauna.com/pricing) cost during the interval          | type (dollars)        |
+| fauna_billing_transactional_compute_ops_cost | [TCO](https://fauna.com/pricing) cost during the interval          | type (dollars)        |
+| fauna_billing_data_storage_cost              | [Data storage](https://fauna.com/pricing) cost during the interval | type (dollars)        |
+| fauna_usage_byte_read_ops                    | Byte read operations during the interval                           | collection            |
+| fauna_usage_byte_write_ops                   | Byte write operations during the interval                          | collection            |
+| fauna_usage_compute_ops                      | Compute operations during the interval                             | collection            |
+| fauna_usage_storage                          | Storage (GB) during the interval                                   | collection            |
+| fauna_usage_versions                         | Versions during the interval                                       | collection            |
+| fauna_usage_indexes                          | Indexes during the interval                                        | collection            |
+
 ## Example of output
 ```
 # HELP fauna_billing_data_storage_cost Billing information - Data Storage cost.
