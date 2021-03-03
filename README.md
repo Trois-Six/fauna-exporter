@@ -1,6 +1,10 @@
 # Fauna Prometheus Exporter
 fauna-exporter permits to get billing and metric information from the Fauna DB dashboard. The billing API is not used anymore by the dashboard but it is always available, that is how I get these information.
 
+It seems that `fauna_billing_total_amount{type="dollars"}` is:
+- the real total amount in $ when the cost is more than your plan
+- your plan cost if you spent less than your plan (as expected).
+
 ## How do I build it?
 ```sh
 $ make build
