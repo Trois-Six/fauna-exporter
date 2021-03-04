@@ -31,7 +31,7 @@ type Client struct {
 	Client   *http.Client
 }
 
-// User holds user information give by the Fauna API.
+// User holds user information given by the Fauna API.
 type User struct {
 	Name       string `json:"name"`
 	Email      string `json:"email"`
@@ -40,7 +40,7 @@ type User struct {
 	Role       string `json:"role"`
 }
 
-// Account holds account information give by the Fauna API.
+// Account holds account information given by the Fauna API.
 type Account struct {
 	CompanyName   string `json:"company_name"`
 	LegacyAccount bool   `json:"legacy_account"`
@@ -107,7 +107,7 @@ func NewFaunaClient(email, password string) *Client {
 	}
 }
 
-// Login permits to get the secret used to exchange with Fauna.
+// Login permits to get the secret used to exchange with Fauna API.
 func (f *Client) Login(url string) error {
 	data, err := json.Marshal(map[string]string{
 		"email":    f.Email,
@@ -165,7 +165,7 @@ func (f *Client) GetBillingUsage(url string, days int) (Billing, error) {
 	return billing, nil
 }
 
-// GetUsage returns the metrics of all the collections for the chosen number of days.
+// GetUsage returns the metrics of all collections for the chosen number of days.
 func (f *Client) GetUsage(url string, days int) (Usage, error) {
 	body, err := f.processGetRequest(url + "?days=" + strconv.FormatInt(int64(days), 10))
 	if err != nil {
